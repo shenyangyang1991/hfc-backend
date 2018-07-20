@@ -31,23 +31,23 @@ module.exports = appInfo => {
   // add error handler
   config.onerror = {
     accepts(ctx) {
-      if (ctx.get('x-requested-with') === 'XMLHttpRequest') return 'json';
+      if (ctx.app.config.env === 'prod') {
+        return 'json';
+      }
       return 'html';
     },
     json(err, ctx) {
       let errJson = {};
       const status = err.status || 500;
-      const errMsg = status === 500 && ctx.app.config.env === 'prod'
+      const errMsg = status === 500
         ? '网络服务器错误'
         : err.message;
       errJson = {
-        errMsg,
+        code: status,
+        message: errMsg,
       };
-      if (status === 422) {
-        errJson.detail = err.errors;
-      }
       ctx.body = errJson;
-      ctx.status = status;
+      ctx.status = 200;
     },
   };
 
@@ -70,11 +70,11 @@ module.exports = appInfo => {
     },
     max: 100,
     disableHeader: false,
-    ignore: '/login',
+    ignore: '/api/v1/login',
   };
 
   config.authentication = {
-    ignore: '/login',
+    ignore: '/api/v1/login',
   };
 
   return config;

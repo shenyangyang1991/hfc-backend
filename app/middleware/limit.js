@@ -5,6 +5,6 @@ const ratelimit = require('koa-ratelimit');
 module.exports = (options, app) => {
   const name = app.config.limit.name;
   options.db = name ? app.redis.get(name) : app.redis;
-  options.id = ctx => ctx.session.user_id;
+  options.id = ctx => ctx.session.user.open_id;
   return ratelimit(options);
 };
